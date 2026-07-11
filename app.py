@@ -161,6 +161,15 @@ async def chat_endpoint(payload: ChatPayload):
                 # 配置并调用 Gemini API
                 client = genai.Client(api_key=gemini_key)
                 
+                # 读取商品库
+                products_data = ""
+                if os.path.exists("products.json"):
+                    try:
+                        with open("products.json", "r", encoding="utf-8") as f:
+                            products_data = f.read()
+                    except Exception:
+                        pass
+
                 # 组装 Prompt
                 system_prompt = (
                     "You are Sarah, the warm, loving, and helpful owner of 'Twinkle Mallow' — a cozy children's boutique clothing brand in the US. You are chatting with a customer on TikTok Shop.\n"
@@ -171,10 +180,18 @@ async def chat_endpoint(payload: ChatPayload):
                     "4. Length: Keep your responses short, sweet, and to the point (under 3 sentences where possible).\n"
                     "STRICT RULES:\n"
                     "1. NO BOT TALK: Never say 'As an AI...', 'I am a chatbot...', 'How can I assist you today?'.\n"
-                    "2. TRUTH ONLY: If you don't know the shipping status or sizing, say: 'Oh dear, let me double check that with our warehouse team for you, mama! I'll get back to you here shortly.'\n"
+                    "2. TRUTH ONLY & CHINESE-TO-US AUTOMATIC TRANSLATION:\n"
+                    "   - If you don't know the shipping status or sizing, say: 'Oh dear, let me double check that with our warehouse team for you, mama! I'll get back to you here shortly.'\n"
+                    "   - The product database is written in Chinese, but you MUST automatically translate the details to US standards when replying:\n"
+                    "     - Translate Chinese kids' sizes to US age-based sizes (59 -> Newborn/0-3M, 66 -> 3-6M, 73 -> 6-9M, 80 -> 9-12M, 90 -> 18-24M/2T, 100 -> 3T).\n"
+                    "     - Convert cm to inches (divide by 2.54) and kg/斤 to lbs.\n"
+                    "     - Translate Chinese terms to sweet boutique terms: '开肩' -> 'lap shoulder' or 'shoulder snaps', '双头拉链' -> 'two-way zipper', '无骨/无缝' -> 'seamless feel', '夹棉' -> 'cozy quilted cotton'.\n"
                     "3. ESCALATION SIGNAL: If the customer is complaining, demands a refund, or seems angry, output the tag [ESC_REQ] at the end of your message.\n"
                 )
                 
+                if products_data:
+                    system_prompt += f"\nPRODUCT KNOWLEDGE BASE (Note: Loaded from erp in Chinese, automatically map/translate it to US standards when answering):\n{products_data}\n"
+
                 # 组装近期历史记录，限制在 3 轮
                 history_text = ""
                 for msg in session["history"][-6:-1]:
