@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twinkle Mallow AI 客服体验中心</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #fbc6a4; /* Warm pastel peach */
+            --primary-dark: #f8a488;
+            --accent: #fcd1d1; /* Soft pink */
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-dark: #4a4a4a;
+            --text-light: #ffffff;
+            --success: #a8e6cf;
+            --warning: #ffd3b6;
+            --danger: #ff8b94;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Quicksand', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-dark);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1400px;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        }
+
+        header h1 {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--primary-dark);
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #7a7a7a;
+            font-size: 1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            height: calc(100vh - 220px);
+            min-height: 600px;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 1. 左侧 TikTok 手机模拟器 */
+        #tiktok-phone {
+            border: 8px solid #222;
+            border-radius: 36px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            background: #fff;
+        }
+
+        .tiktok-header {
+            background: #010101;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tiktok-header span {
+            color: #fe2c55; /* TikTok Red */
+        }
+
+        .tiktok-chat {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f8f8f8;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .message.customer {
+            background: #eef2f3;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            color: #333;
+        }
+
+        .message.assistant {
+            background: var(--primary);
+            color: #333;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.system {
+            background: #fff3cd;
+            color: #856404;
+            max-width: 100%;
+            align-self: center;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            border: 1px solid #ffeeba;
+            text-align: center;
+        }
+
+        .tiktok-input-area {
+            padding: 12px;
+            background: #fff;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+        }
+
+        .tiktok-input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .tiktok-input-area button {
+            background: #fe2c55;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+        }
+
+        .tiktok-input-area button:hover {
+            background: #e0244b;
+        }
+
+        /* 2. 中间 AI 决策大脑 */
+        .log-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .log-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 5px solid var(--primary-dark);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-card.rule {
+            border-left-color: var(--success);
+        }
+
+        .log-card.escalate {
+            border-left-color: var(--danger);
+        }
+
+        .log-card h4 {
+            font-size: 0.95rem;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .log-badge.rule { background: #d4edda; color: #155724; }
+        .log-badge.ai { background: #d1ecf1; color: #0c5460; }
+        .log-badge.escalate { background: #f8d7da; color: #721c24; }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #eee;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* 3. 右侧 飞书报警模拟器 */
+        .feishu-bg {
+            background: #f0f2f5;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feishu-header {
+            background: #3370ff; /* Feishu Blue */
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feishu-alert-list {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .feishu-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee0e3;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .feishu-card-header {
+            background: #fff1f0;
+            color: #f5222d;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #ffa39e;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .feishu-card-body {
+            padding: 15px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .feishu-card-body strong {
+            color: #333;
+        }
+
+        .feishu-card-footer {
+            background: #fafafa;
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            color: #8c8c8c;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* 底部配置面板 */
+        .config-bar {
+            width: 100%;
+            max-width: 1400px;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .config-inputs {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            max-width: 1000px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-group input {
+            padding: 8px 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.5);
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #f78d6c;
+        }
+
+        .btn-reset {
+            background: #7a7a7a;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #616161;
+        }
+
+        .status-badge {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .status-badge.escalated {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🧸 Twinkle Mallow AI 客服体验中心</h1>
+        <p>左侧模拟顾客视角聊天，中间观察 AI 决策的大脑过程与成本，右侧实时显示飞书报警通知</p>
+    </header>
+
+    <div class="container">
+        <!-- 1. 左侧 TikTok 手机模拟器 -->
+        <div id="tiktok-phone">
+            <div class="tiktok-header">
+                <div>💬 Customer Chat</div>
+                <div>店主 <span>Sarah</span> 🟢</div>
+            </div>
+            <div class="tiktok-chat" id="chat-box">
+                <div class="message system">
+                    🎉 Welcome to Twinkle Mallow!<br>
+                    You can try testing:<br>
+                    - "when will my order ship?" (Rules)<br>
+                    - "is it organic? for sensitive skin?" (AI)<br>
+                    - "I want a refund, snap is broken!" (Escalate)<br>
+                </div>
+            </div>
+            <div class="tiktok-input-area">
+                <input type="text" id="user-input" placeholder="Type a message to Sarah..." onkeydown="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()">✈️</button>
+            </div>
+        </div>
+
+        <!-- 2. 中间 AI 决策大脑 -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>🧠 AI 决策管道监测器</span>
+                <span class="status-badge" id="session-status">AI 回复中</span>
+            </div>
+            <div class="log-list" id="log-box">
+                <div class="message system" style="background: rgba(255,255,255,0.5);">
+                    ⏳ 暂无决策日志，请在左侧发送第一条消息开始测试
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 右侧 飞书报警模拟器 -->
+        <div class="panel">
+            <div class="feishu-bg">
+                <div class="feishu-header">
+                    <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="fill: currentcolor;"><path d="M24 4C12.95 4 4 12.95 4 24C4 35.05 12.95 44 24 44C35.05 44 44 35.05 44 24C44 12.95 35.05 4 24 4ZM26 34H22V30H26V34ZM26 26H22V14H26V26Z"></path></svg>
+                    <span>飞书群警报监控 (Feishu Monitor)</span>
+                </div>
+                <div class="feishu-alert-list" id="feishu-box">
+                    <div class="message system" style="background: rgba(255,255,255,0.5); align-self: stretch;">
+                        🛡️ 飞书监控已开启。当 AI 转接人工时，报警卡片会立刻显示在这里。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部配置面板 -->
+    <div class="config-bar">
+        <div class="config-inputs">
+            <div class="input-group">
+                <label for="gemini-key">Gemini API Key (可选 - 不填则自动模拟 Sarah 语气)</label>
+                <input type="password" id="gemini-key" placeholder="AI-xxxxxx (提供后将连接真实大模型)">
+            </div>
+            <div class="input-group">
+                <label for="feishu-webhook">飞书机器人 Webhook (可选 - 提供后将在你的飞书里收到真实报警卡片)</label>
+                <input type="password" id="feishu-webhook" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxx">
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-reset" onclick="resetDemo()">🔄 重置对话</button>
+        </div>
+    </div>
+
+    <script>
+        const userId = "test_user_tiktok_" + Math.floor(Math.random() * 10000);
+
+        function addMessage(role, text) {
+            const chatBox = document.getElementById('chat-box');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${role}`;
+            msgDiv.innerText = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addLogCard(tag, message, tokens, cost) {
+            const logBox = document.getElementById('log-box');
+            
+            // 移除默认等待提示
+            if (logBox.innerHTML.includes("暂无决策日志")) {
+                logBox.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            card.className = `log-card ${tag.toLowerCase().includes('rule') ? 'rule' : (tag.toLowerCase().includes('escalate') ? 'escalate' : 'ai')}`;
+            
+            let badgeClass = 'ai';
+            if (tag.includes('RULE')) badgeClass = 'rule';
+            if (tag.includes('ESCALATE')) badgeClass = 'escalate';
+
+            card.innerHTML = `
+                <h4>
+                    <span>📥 处理阶段: 意图分流</span>
+                    <span class="log-badge ${badgeClass}">${tag}</span>
+                </h4>
+                <p><strong>客户输入:</strong> "${message}"</p>
+                <div class="metric-grid">
+                    <div><strong>消耗估算:</strong> ${tokens} Tokens</div>
+                    <div><strong>费用估算:</strong> $${cost} USD</div>
+                </div>
+            `;
+            logBox.appendChild(card);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function addFeishuAlert(reason, lastMsg) {
+            const feishuBox = document.getElementById('feishu-box');
+            
+            if (feishuBox.innerHTML.includes("飞书监控已开启")) {
+                feishuBox.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'feishu-card';
+            card.innerHTML = `
+                <div class="feishu-card-header">
+                    🚨 AI 触发转接人工警报
+                </div>
+                <div class="feishu-card-body">
+                    <div><strong>关联用户:</strong> ${userId}</div>
+                    <div><strong>转接原因:</strong> ${reason}</div>
+                    <div><strong>最后消息:</strong> "${lastMsg}"</div>
+                    <div style="margin-top: 8px; color: #ff4d4f; font-weight: bold;">
+                        📢 AI 回复已静默切断。请点击 TikTok Seller Center 登录处理。
+                    </div>
+                </div>
+                <div class="feishu-card-footer">
+                    触发时间: ${new Date().toLocaleTimeString()}
+                </div>
+            `;
+            feishuBox.appendChild(card);
+            feishuBox.scrollTop = feishuBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            addMessage('customer', text);
+
+            const geminiKey = document.getElementById('gemini-key').value.trim();
+            const feishuWebhook = document.getElementById('feishu-webhook').value.trim();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        user_id: userId,
+                        gemini_key: geminiKey,
+                        feishu_webhook: feishuWebhook
+                    })
+                });
+
+                const data = await response.json();
+
+                // 1. 添加助手回复
+                addMessage('assistant', data.bot_reply);
+
+                // 2. 添加决策日志
+                addLogCard(data.route_tag, text, data.token_count, data.cost);
+
+                // 3. 更新状态
+                const statusBadge = document.getElementById('session-status');
+                if (data.session_status === 'escalated') {
+                    statusBadge.innerText = '人工已接管';
+                    statusBadge.className = 'status-badge escalated';
+                } else {
+                    statusBadge.innerText = 'AI 回复中';
+                    statusBadge.className = 'status-badge';
+                }
+
+                // 4. 如果触发飞书报警，更新监控器
+                if (data.feishu_triggered) {
+                    addFeishuAlert(data.route_tag === 'ESCALATE' ? '敏感词触发' : 'AI 判定需要人工', text);
+                }
+
+            } catch (err) {
+                addMessage('assistant', "Oh dear, I had a little hiccup wiggling my way here! 🥺 Let me double check with my team, mama!");
+            }
+        }
+
+        async function resetDemo() {
+            await fetch('/api/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: userId })
+            });
+
+            document.getElementById('chat-box').innerHTML = `
+                <div class="message system">
+                    🎉 Welcome to Twinkle Mallow!<br>
+                    You can try testing:<br>
+                    - "when will my order ship?" (Rules)<br>
+                    - "is it organic? for sensitive skin?" (AI)<br>
+                    - "I want a refund, snap is broken!" (Escalate)<br>
+                </div>
+            `;
+            document.getElementById('log-box').innerHTML = `
+                <div class="message system" style="background: rgba(255,255,255,0.5);">
+                    ⏳ 暂无决策日志，请在左侧发送第一条消息开始测试
+                </div>
+            `;
+            document.getElementById('feishu-box').innerHTML = `
+                <div class="message system" style="background: rgba(255,255,255,0.5); align-self: stretch;">
+                    🛡️ 飞书监控已开启。当 AI 转接人工时，报警卡片会立刻显示在这里。
+                </div>
+            `;
+            
+            const statusBadge = document.getElementById('session-status');
+            statusBadge.innerText = 'AI 回复中';
+            statusBadge.className = 'status-badge';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "products": [
+    {
+      "style_id": "TM101",
+      "name": "Sweet Summer Meadow Romper",
+      "fabric": "100% Organic Bamboo Cotton (有机竹纤维棉)",
+      "features": "Super stretchy, breathable, hypoallergenic, buttery soft, external scratch-free tags (外缝标签，不扎宝宝皮肤), easy snap buttons at bottom (底部按扣，方便换尿不湿)",
+      "sizing": [
+        {"size": "0-3M", "weight": "8-12 lbs", "height": "21-24 inches"},
+        {"size": "3-6M", "weight": "12-16 lbs", "height": "24-26 inches"},
+        {"size": "6-9M", "weight": "16-20 lbs", "height": "26-28 inches"},
+        {"size": "9-12M", "weight": "20-24 lbs", "height": "28-30 inches"}
+      ]
+    }
+  ]
+}
