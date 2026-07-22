@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from google import genai
+from openai import OpenAI
 
 # 加载本地 .env 文件
 def load_env():
@@ -158,9 +159,6 @@ async def chat_endpoint(payload: ChatPayload):
         # LLM 大模型生成
         if gemini_key:
             try:
-                # 配置并调用 Gemini API
-                client = genai.Client(api_key=gemini_key)
-                
                 # 读取商品库
                 products_data = ""
                 if os.path.exists("products.json"):
@@ -192,26 +190,46 @@ async def chat_endpoint(payload: ChatPayload):
                 if products_data:
                     system_prompt += f"\nPRODUCT KNOWLEDGE BASE (Note: Loaded from erp in Chinese, automatically map/translate it to US standards when answering):\n{products_data}\n"
 
-                # 组装近期历史记录，限制在 3 轮
-                history_text = ""
-                for msg in session["history"][-6:-1]:
-                    role_label = "Customer" if msg["role"] == "user" else "Sarah"
-                    history_text += f"{role_label}: {msg['text']}\n"
-                
-                full_prompt = f"{system_prompt}\nChat History:\n{history_text}\nCustomer: {message}\nSarah:"
-                
-                response = client.models.generate_content(
-                    model='gemini-2.0-flash',
-                    contents=full_prompt
-                )
-                bot_reply = response.text.strip()
-                
-                # 计算 Token 消耗 (Flash 计费大约: Input $0.15/1M, Output $0.60/1M)
-                # 使用字数近似估计 Token (1 word ≈ 1.3 tokens)
-                input_tokens = int(len(full_prompt.split()) * 1.3)
-                output_tokens = int(len(bot_reply.split()) * 1.3)
-                token_count = input_tokens + output_tokens
-                cost = (input_tokens * 0.00000015) + (output_tokens * 0.0000006)
+                # 检测是否为 OpenAI 的 Key (sk- 开头)
+                if gemini_key.startswith("sk-"):
+                    client = OpenAI(api_key=gemini_key)
+                    
+                    messages_list = [{"role": "system", "content": system_prompt}]
+                    for msg in session["history"][-6:-1]:
+                        messages_list.append({"role": "user" if msg["role"] == "user" else "assistant", "content": msg["text"]})
+                    messages_list.append({"role": "user", "content": message})
+                    
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=messages_list
+                    )
+                    bot_reply = response.choices[0].message.content.strip()
+                    
+                    input_tokens = response.usage.prompt_tokens
+                    output_tokens = response.usage.completion_tokens
+                    token_count = input_tokens + output_tokens
+                    cost = (input_tokens * 0.00000015) + (output_tokens * 0.0000006)
+                else:
+                    # 使用 Gemini
+                    client = genai.Client(api_key=gemini_key)
+                    
+                    history_text = ""
+                    for msg in session["history"][-6:-1]:
+                        role_label = "Customer" if msg["role"] == "user" else "Sarah"
+                        history_text += f"{role_label}: {msg['text']}\n"
+                    
+                    full_prompt = f"{system_prompt}\nChat History:\n{history_text}\nCustomer: {message}\nSarah:"
+                    
+                    response = client.models.generate_content(
+                        model='gemini-2.0-flash',
+                        contents=full_prompt
+                    )
+                    bot_reply = response.text.strip()
+                    
+                    input_tokens = int(len(full_prompt.split()) * 1.3)
+                    output_tokens = int(len(bot_reply.split()) * 1.3)
+                    token_count = input_tokens + output_tokens
+                    cost = (input_tokens * 0.00000015) + (output_tokens * 0.0000006)
                 
                 # 检查 AI 是否触发了转接
                 if "[ESC_REQ]" in bot_reply:
@@ -222,7 +240,7 @@ async def chat_endpoint(payload: ChatPayload):
             except Exception as e:
                 bot_reply = f"Oh dear, I had a little hiccup wiggling my way here! 🥺 Let me double check with my team for you, mama! (Error: {str(e)})"
                 session["status"] = "escalated"
-                send_feishu_alert(feishu_webhook, user_id, f"Gemini API Error: {str(e)}", message)
+                send_feishu_alert(feishu_webhook, user_id, f"LLM API Error: {str(e)}", message)
                 feishu_triggered = True
         else:
             # 走 Mock AI
